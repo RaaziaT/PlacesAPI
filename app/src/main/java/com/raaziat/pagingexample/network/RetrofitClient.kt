@@ -2,7 +2,6 @@ package com.raaziat.pagingexample.network
 
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 
 object RetrofitClient {
@@ -12,7 +11,6 @@ object RetrofitClient {
         val retrofit = Retrofit.Builder()
             .baseUrl(RetrofitClient.GOOGLE_BASE_URL)
             .client(OkHttpClient().newBuilder().build())
-            .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         return retrofit.create(NetworkInterfaces::class.java)

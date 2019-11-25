@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -37,10 +39,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    private lateinit var viewModel: MapsViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+
+        viewModel = ViewModelProviders.of(this).get(MapsViewModel::class.java)
+
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -68,40 +75,57 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback
     }
 
     private fun getPlaces(latLng: String) {
-        val placesCall = RetrofitClient.googleMethods().getNearbySearch(
-            latLng,
-            Constants.RADIUS_1000,
-            Constants.TYPE,
-            Constants.GOOGLE_API_KEY
+
+//        val placesCall = RetrofitClient.googleMethods().getNearbySearch(
+//            latLng,
+//            Constants.RADIUS_1000,
+//            Constants.TYPE)
+//
+//        placesCall.enqueue(object : Callback<NearbySearch> {
+//            override fun onFailure(call: Call<NearbySearch>, t: Throwable) {
+//
+//            }
+//
+//            override fun onResponse(call: Call<NearbySearch>, response: Response<NearbySearch>) {
+//                val nearbySearch = response.body()!!
+//
+//                if (nearbySearch.status == "OK") {
+//                    val spotList = ArrayList<Spot>()
+//
+//                    for (resultItem in nearbySearch.results) {
+//                        val spot = Spot(
+//                            resultItem.name,
+//                            resultItem.geometry.location.lat,
+//                            resultItem.geometry.location.lng
+//                        )
+//                        spotList.add(spot)
+//                    }
+//
+//                    mMapController.setMarkersAndZoom(spotList)
+//                } else {
+//                    toast(nearbySearch.status)
+//                }
+//            }
+//
+//        })
+
+        viewModel.fetchPlaces(latLng)
+
+        viewModel.placesLiveData.observe(this, Observer {
+            val spotList = ArrayList<Spot>()
+
+            for (resultItem in it) {
+                val spot = Spot(
+                    resultItem.name,
+                    resultItem.geometry.location.lat,
+                    resultItem.geometry.location.lng
+                )
+                spotList.add(spot)
+            }
+            mMapController.setMarkersAndZoom(spotList)
+        }
         )
 
-        placesCall.enqueue(object : Callback<NearbySearch> {
-            override fun onFailure(call: Call<NearbySearch>, t: Throwable) {
-
-            }
-
-            override fun onResponse(call: Call<NearbySearch>, response: Response<NearbySearch>) {
-                val nearbySearch = response.body()!!
-
-                if (nearbySearch.status == "OK") {
-                    val spotList = ArrayList<Spot>()
-
-                    for (resultItem in nearbySearch.results) {
-                        val spot = Spot(
-                            resultItem.name,
-                            resultItem.geometry.location.lat,
-                            resultItem.geometry.location.lng
-                        )
-                        spotList.add(spot)
-                    }
-
-                    mMapController.setMarkersAndZoom(spotList)
-                } else {
-                    toast(nearbySearch.status)
-                }
-            }
-
-        })
     }
 
     override fun onRequestPermissionsResult(
@@ -123,7 +147,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback
                             run {
                                 latLng =
                                     location?.latitude.toString() + "," + location?.longitude.toString()
-                                placeMarker(location?.latitude as Double,location.longitude)
+                                placeMarker(location?.latitude as Double, location.longitude)
                                 getPlaces(latLng)
                             }
                         }
@@ -133,14 +157,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback
                 } else {
                     toast("Unable to fetch current location")
                     latLng = "24.85777225" + "," + "67.046530902";
-                    placeMarker(24.85777225,67.046530902)
+                    placeMarker(24.85777225, 67.046530902)
                     getPlaces(latLng)
                 }
             }
         }
     }
 
-    private fun placeMarker(lat:Double, longitude:Double){
+    private fun placeMarker(lat: Double, longitude: Double) {
         val latLng = LatLng(lat, longitude)
         mGoogleMap.addMarker(MarkerOptions().position(latLng).title("Location"))
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
