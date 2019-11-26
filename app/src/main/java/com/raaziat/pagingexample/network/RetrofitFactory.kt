@@ -23,11 +23,23 @@ object RetrofitFactory {
         chain.proceed(newRequest)
     }
 
+    private val authInterceptorWeather = Interceptor { chain ->
+        val newUrl = chain.request()
+            .url().newBuilder()
+            .addQueryParameter("apikey", Constants.WEATHER_API_KEY)
+            .build()
+        val newRequest = chain.request()
+            .newBuilder().url(newUrl).build()
+
+        chain.proceed(newRequest)
+    }
+
+
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    private val clint =
+    val clint: OkHttpClient =
         if (BuildConfig.DEBUG) {
             OkHttpClient().newBuilder().addInterceptor(authInterceptor)
                 .addInterceptor(loggingInterceptor)
@@ -39,8 +51,21 @@ object RetrofitFactory {
                 .build()
         }
 
-    fun retrofit(baseUrl:String):Retrofit = Retrofit.Builder()
-        .client(clint)
+    val clintWeather: OkHttpClient =
+        if (BuildConfig.DEBUG) {
+            OkHttpClient().newBuilder().addInterceptor(authInterceptorWeather)
+                .addInterceptor(loggingInterceptor)
+                .build()
+        } else {
+            OkHttpClient().newBuilder()
+                .addInterceptor(loggingInterceptor)
+                .addInterceptor(authInterceptorWeather)
+                .build()
+        }
+
+
+    fun retrofit(baseUrl: String, client: OkHttpClient): Retrofit = Retrofit.Builder()
+        .client(client)
         .baseUrl(baseUrl)
         .addConverterFactory(MoshiConverterFactory.create())
         .addCallAdapterFactory(CoroutineCallAdapterFactory())

@@ -1,84 +1,54 @@
-package com.raaziat.pagingexample.ui.maps
+package com.raaziat.pagingexample.ui.weather
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.raaziat.pagingexample.R
-import com.raaziat.pagingexample.model.others.Spot
+import com.raaziat.pagingexample.ui.maps.MapsActivity
 import com.raaziat.pagingexample.utils.toast
+import kotlinx.android.synthetic.main.activity_weather.*
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class WeatherActivity : AppCompatActivity() {
 
-    private lateinit var mGoogleMap: GoogleMap
-    private lateinit var mMapController: MapController
+    private lateinit var weatherViewModel: WeatherViewModel
+    private lateinit var weatherAdapter: WeatherAdapter
     private lateinit var latLng: String
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    private lateinit var viewModel: MapsViewModel
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps)
+        setContentView(R.layout.activity_weather)
 
-        viewModel = ViewModelProviders.of(this).get(MapsViewModel::class.java)
-
-
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
-
-    }
-
-
-
-    override fun onMapReady(googleMap: GoogleMap) {
-        mGoogleMap = googleMap
-
-        mMapController = MapController(this, mGoogleMap)
-
+        weatherViewModel = ViewModelProviders.of(this).get(WeatherViewModel::class.java)
 
         ActivityCompat.requestPermissions(
             this,
             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
             100
         )
+
+        btn_restaurants.setOnClickListener { startActivity(Intent(this,MapsActivity::class.java)) }
+
+
     }
 
-    private fun getPlaces(latLng: String) {
-        viewModel.fetchPlaces(latLng)
-
-        viewModel.placesLiveData.observe(this, Observer {
-            val spotList = ArrayList<Spot>()
-
-            for (resultItem in it) {
-                val spot = Spot(
-                    resultItem.name,
-                    resultItem.geometry.location.lat,
-                    resultItem.geometry.location.lng
-                )
-                spotList.add(spot)
-            }
-            mMapController.setMarkersAndZoom(spotList)
-        }
-        )
-
+    private fun initializeRecyclerView() {
+        val linearLayoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+        recyclerView_weather.layoutManager = linearLayoutManager
+        recyclerView_weather.adapter = weatherAdapter
     }
 
     override fun onRequestPermissionsResult(
@@ -100,8 +70,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             run {
                                 latLng =
                                     location?.latitude.toString() + "," + location?.longitude.toString()
-                                placeMarker(location?.latitude as Double, location.longitude)
-                                getPlaces(latLng)
+                                getWeather(latLng)
                             }
                         }
 
@@ -110,19 +79,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 } else {
                     toast("Unable to fetch current location",this)
                     latLng = "24.85777225" + "," + "67.046530902";
-                    placeMarker(24.85777225, 67.046530902)
-                    getPlaces(latLng)
+                    getWeather(latLng)
                 }
             }
         }
     }
 
-    private fun placeMarker(lat: Double, longitude: Double) {
-        val latLng = LatLng(lat, longitude)
-        mGoogleMap.addMarker(MarkerOptions().position(latLng).title("Location"))
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+    private fun getWeather(latLng: String) {
+        weatherViewModel.fetchMovies(latLng)
+
+        weatherAdapter = WeatherAdapter()
+        initializeRecyclerView()
+
+
+
+        weatherViewModel.weatherLiveData.observe(this, Observer {
+            weatherAdapter.submitList(it)
+            weatherAdapter.setOnItemClickListener(object : WeatherAdapter.OnItemClickListener{
+                override fun onItemClick(item: Int) {
+                    toast(weatherAdapter.getItemAt(item).Date,this@WeatherActivity)
+                }
+            })
+        })
     }
-
-
 }
-

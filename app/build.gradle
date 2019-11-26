@@ -18,22 +18,20 @@ android {
         versionName "1.0"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        dataBinding.enabled = true
     }
-//    buildTypes {
-//        release {
-//            minifyEnabled false
-//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-//        }
-//    }
 
     buildTypes {
         Properties properties = new Properties()
         properties.load(project.rootProject.file("local.properties").newDataInputStream())
         def apiKey = properties.getProperty("api_key", "")
+        def apiKeyWeather = properties.getProperty("api_key_weather", "")
 
         debug {
             buildConfigField 'String', "API_KEY", apiKey
+            buildConfigField 'String', "API_KEY_WEATHER", apiKeyWeather
             resValue 'string', "api_key", apiKey
+            resValue 'string', "api_key_weather", apiKeyWeather
 
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -41,7 +39,9 @@ android {
 
         release {
             buildConfigField 'String', "API_KEY", apiKey
+            buildConfigField 'String', "API_KEY_WEATHER", apiKeyWeather
             resValue 'string', "api_key", apiKey
+            resValue 'string', "api_key_weather", apiKeyWeather
 
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

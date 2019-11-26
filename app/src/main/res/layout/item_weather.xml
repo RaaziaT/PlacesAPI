@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/txtView_day"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            tools:text="monday"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/imgView_weatherImage"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/common_google_signin_btn_text_dark" />
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center">
+
+            <TextView
+                android:id="@+id/txtView_dayTemperature"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                tools:text="23"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/txtView_nightTemperature"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                tools:text="32"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

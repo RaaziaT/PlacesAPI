@@ -1,12 +1,15 @@
 package com.raaziat.pagingexample.network
 
 import com.raaziat.pagingexample.utils.Constants
-import retrofit2.create
 
-object ApiFactory{
+object ApiFactory {
 
-    val networkInterfaces = RetrofitFactory
-        .retrofit(Constants.GOOGLE_BASE_URL)
+    val networkInterfaces: NetworkInterfaces = RetrofitFactory
+        .retrofit(Constants.GOOGLE_BASE_URL, RetrofitFactory.clint)
         .create(NetworkInterfaces::class.java)
+
+    val networkInterfacesWeather: NetworkInterfacesWeather = RetrofitFactory
+        .retrofit(Constants.WEATHER_BASE_URL, RetrofitFactory.clintWeather)
+        .create(NetworkInterfacesWeather::class.java)
 
 }
