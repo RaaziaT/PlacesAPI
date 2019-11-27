@@ -9,29 +9,35 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import com.raaziat.pagingexample.R
+import com.raaziat.pagingexample.utils.toast
 import kotlinx.android.synthetic.main.activity_step_counter.*
 
 class StepCounterActivity : AppCompatActivity(), SensorEventListener {
 
     var running = false
-    lateinit var sensorManager: SensorManager
+    private lateinit var sensorManager: SensorManager
+    private lateinit  var stepsSensor:Sensor
+    private lateinit  var stepsSensorTilt:Sensor
+    var count = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_step_counter)
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        stepsSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)
+        stepsSensorTilt = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
     }
 
     override fun onResume() {
         super.onResume()
         running = true
-        val stepsSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
 
         if (stepsSensor == null) {
             Toast.makeText(this, "No Step Counter Sensor !", Toast.LENGTH_SHORT).show()
         } else {
             sensorManager.registerListener(this, stepsSensor, SensorManager.SENSOR_DELAY_UI)
+            sensorManager.registerListener(this, stepsSensorTilt, SensorManager.SENSOR_DELAY_UI)
         }
     }
 
@@ -46,8 +52,16 @@ class StepCounterActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent) {
         if (running) {
-            stepsValue.text = "" + event.values[0]
-//            event.sensor.type
+            val sensor = event.sensor
+            val values = event.values
+            var value = -1
+
+            if(values.isNotEmpty()) value = values[0].toInt()
+
+            if(sensor.type == Sensor.TYPE_STEP_DETECTOR) count++
+//            if(sensor.type == Sensor.TYPE_GRAVITY) toast("Woho...",this)
+
+            stepsValue.text = "Count: " + count
         }
     }
 }
