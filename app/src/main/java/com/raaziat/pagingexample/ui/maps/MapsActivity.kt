@@ -9,51 +9,28 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
 
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.raaziat.pagingexample.R
-import com.raaziat.pagingexample.model.others.Spot
 import com.raaziat.pagingexample.utils.toast
+import kotlinx.android.synthetic.main.activity_restaurant.*
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    private lateinit var mGoogleMap: GoogleMap
-    private lateinit var mMapController: MapController
+class MapsActivity : AppCompatActivity() {
+
     private lateinit var latLng: String
-
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-
     private lateinit var viewModel: MapsViewModel
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps)
+        setContentView(R.layout.activity_restaurant)
 
         viewModel = ViewModelProviders.of(this).get(MapsViewModel::class.java)
-
-
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
-
-    }
-
-
-
-    override fun onMapReady(googleMap: GoogleMap) {
-        mGoogleMap = googleMap
-
-        mMapController = MapController(this, mGoogleMap)
-
-
         ActivityCompat.requestPermissions(
             this,
             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
@@ -61,21 +38,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         )
     }
 
+
     private fun getPlaces(latLng: String) {
         viewModel.fetchPlaces(latLng)
-
         viewModel.placesLiveData.observe(this, Observer {
-            val spotList = ArrayList<Spot>()
-
-            for (resultItem in it) {
-                val spot = Spot(
-                    resultItem.name,
-                    resultItem.geometry.location.lat,
-                    resultItem.geometry.location.lng
-                )
-                spotList.add(spot)
-            }
-            mMapController.setMarkersAndZoom(spotList)
+            recyclerView_restaurant.layoutManager = LinearLayoutManager(this)
+            val adapter = RestaurantAdapter(it, this)
+            recyclerView_restaurant.adapter = adapter
         }
         )
 
@@ -100,7 +69,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             run {
                                 latLng =
                                     location?.latitude.toString() + "," + location?.longitude.toString()
-                                placeMarker(location?.latitude as Double, location.longitude)
                                 getPlaces(latLng)
                             }
                         }
@@ -109,18 +77,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 } else {
                     toast("Unable to fetch current location",this)
-                    latLng = "24.85777225" + "," + "67.046530902";
-                    placeMarker(24.85777225, 67.046530902)
-                    getPlaces(latLng)
                 }
             }
         }
-    }
-
-    private fun placeMarker(lat: Double, longitude: Double) {
-        val latLng = LatLng(lat, longitude)
-        mGoogleMap.addMarker(MarkerOptions().position(latLng).title("Location"))
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
     }
 
 

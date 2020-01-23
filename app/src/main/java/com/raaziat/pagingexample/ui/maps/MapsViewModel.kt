@@ -6,6 +6,9 @@ import com.raaziat.pagingexample.model.places.Result
 import com.raaziat.pagingexample.network.ApiFactory
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
 
 class MapsViewModel :ViewModel(){
     private val parentJob = Job()
@@ -25,6 +28,12 @@ class MapsViewModel :ViewModel(){
             placesLiveData.postValue(places)
         }
     }
+
+    fun getCityName(compoundCode: String): String {
+
+        return compoundCode.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
+    }
+
 
     override fun onCleared() {
         coroutineContext.cancel()

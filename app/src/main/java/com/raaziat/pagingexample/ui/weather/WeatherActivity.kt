@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -40,7 +39,7 @@ class WeatherActivity : AppCompatActivity() {
             100
         )
 
-        btn_restaurants.setOnClickListener { startActivity(Intent(this,MapsActivity::class.java)) }
+        btn_restaurants.setOnClickListener { startActivity(Intent(this, MapsActivity::class.java)) }
 
 
     }
@@ -77,7 +76,7 @@ class WeatherActivity : AppCompatActivity() {
                     }
 
                 } else {
-                    toast("Unable to fetch current location",this)
+                    toast("Unable to fetch current location", this)
                     latLng = "24.85777225" + "," + "67.046530902";
                     getWeather(latLng)
                 }
@@ -86,7 +85,7 @@ class WeatherActivity : AppCompatActivity() {
     }
 
     private fun getWeather(latLng: String) {
-        weatherViewModel.fetchMovies(latLng)
+        weatherViewModel.fetchWeather(latLng)
 
         weatherAdapter = WeatherAdapter()
         initializeRecyclerView()
@@ -95,9 +94,9 @@ class WeatherActivity : AppCompatActivity() {
 
         weatherViewModel.weatherLiveData.observe(this, Observer {
             weatherAdapter.submitList(it)
-            weatherAdapter.setOnItemClickListener(object : WeatherAdapter.OnItemClickListener{
+            weatherAdapter.setOnItemClickListener(object : WeatherAdapter.OnItemClickListener {
                 override fun onItemClick(item: Int) {
-                    toast(weatherAdapter.getItemAt(item).Date,this@WeatherActivity)
+                    toast(weatherAdapter.getItemAt(item).Date, this@WeatherActivity)
                 }
             })
         })
