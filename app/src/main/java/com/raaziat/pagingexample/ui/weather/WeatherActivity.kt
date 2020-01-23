@@ -18,12 +18,18 @@ import com.raaziat.pagingexample.R
 import com.raaziat.pagingexample.ui.maps.MapsActivity
 import com.raaziat.pagingexample.utils.toast
 import kotlinx.android.synthetic.main.activity_weather.*
+import android.location.Geocoder
+import com.raaziat.pagingexample.utils.formatList
+import com.raaziat.pagingexample.utils.getCelsius
+import kotlinx.android.synthetic.main.activity_weather.txtView_day
+import kotlinx.android.synthetic.main.item_weather.*
+import java.util.*
+
 
 class WeatherActivity : AppCompatActivity() {
 
     private lateinit var weatherViewModel: WeatherViewModel
     private lateinit var weatherAdapter: WeatherAdapter
-    private lateinit var latLng: String
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -67,9 +73,7 @@ class WeatherActivity : AppCompatActivity() {
                         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
                         fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                             run {
-                                latLng =
-                                    location?.latitude.toString() + "," + location?.longitude.toString()
-                                getWeather(latLng)
+                                getWeather(location?.latitude, location?.longitude)
                             }
                         }
 
@@ -77,15 +81,20 @@ class WeatherActivity : AppCompatActivity() {
 
                 } else {
                     toast("Unable to fetch current location", this)
-                    latLng = "24.85777225" + "," + "67.046530902";
-                    getWeather(latLng)
                 }
             }
         }
     }
 
-    private fun getWeather(latLng: String) {
-        weatherViewModel.fetchWeather(latLng)
+    private fun getCityName(lat: Double?, lng: Double?): String {
+        val geocoder = Geocoder(this, Locale.getDefault())
+        val addresses = geocoder.getFromLocation(lat!!, lng!!, 1)
+        val cityName = addresses[0].locality
+        return cityName
+    }
+
+    private fun getWeather(lat: Double?, lng: Double?) {
+        weatherViewModel.fetchWeather(lat, lng)
 
         weatherAdapter = WeatherAdapter()
         initializeRecyclerView()
@@ -93,10 +102,16 @@ class WeatherActivity : AppCompatActivity() {
 
 
         weatherViewModel.weatherLiveData.observe(this, Observer {
-            weatherAdapter.submitList(it)
+            weatherAdapter.submitList(formatList(it.list))
+
+            txtView_city.text = getCityName(lat, lng)
+            txtView_temp.text = getCelsius(it.list[0].main.temp).toString().dropLast(2)
+            txtView_day.text = Calendar.getInstance()
+                .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US)
+
             weatherAdapter.setOnItemClickListener(object : WeatherAdapter.OnItemClickListener {
                 override fun onItemClick(item: Int) {
-                    toast(weatherAdapter.getItemAt(item).Date, this@WeatherActivity)
+                    toast(weatherAdapter.getItemAt(item).dt_txt, this@WeatherActivity)
                 }
             })
         })

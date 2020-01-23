@@ -1,26 +1,24 @@
 package com.raaziat.pagingexample.ui.weather
 
-import com.raaziat.accuweathersample.model.weather.DailyForecast
+import com.raaziat.pagingexample.model.openweather.WeatherResponse
 import com.raaziat.pagingexample.network.BaseRepository
-import com.raaziat.pagingexample.network.NetworkInterfacesWeather
+import com.raaziat.pagingexample.network.NetworkInterfacesOpenWeather
 
-class WeatherRepository(private val api: NetworkInterfacesWeather) : BaseRepository(){
+class WeatherRepository(private val api: NetworkInterfacesOpenWeather) : BaseRepository(){
 
-    suspend fun getWeather(q:String) :MutableList<DailyForecast>?{
+    suspend fun getWeather(lat:Double?,lng:Double?) :WeatherResponse?{
 
         //safeApiCall is defined in BaseRepository.kt
-        val locationResponse = safeApiCall(
-            call = {api.getLocation(q).await()},
-            errorMessage = "Error Fetching Popular Weather"
-        )
+//        val locationResponse = safeApiCall(
+//            call = {api.getLocation(q).await()},
+//            errorMessage = "Error Fetching Popular Weather"
+//        )
+//
+//        val locationKey = locationResponse?.Key;
 
-        val locationKey = locationResponse?.Key;
-
-        val weatherResponse = safeApiCall(
-            call = {api.getWeather(locationKey!!.toInt()).await()},
-            errorMessage = "Error Fetching Popular Weather"
-        )
-
-        return weatherResponse?.DailyForecasts?.toMutableList();
+        return safeApiCall(
+        call = { api.getForecast(lat,lng).await()},
+        errorMessage = "Error Fetching Popular Weather"
+    );
     }
 }

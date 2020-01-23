@@ -9,8 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.raaziat.accuweathersample.model.weather.DailyForecast
 import com.raaziat.pagingexample.R
 import com.raaziat.pagingexample.databinding.ItemWeatherBinding
+import com.raaziat.pagingexample.model.openweather.X
+import com.raaziat.pagingexample.utils.Constants
+import com.raaziat.pagingexample.utils.getCelsius
+import com.squareup.picasso.Picasso
 
-class WeatherAdapter : ListAdapter<DailyForecast,WeatherAdapter.WeatherViewHolder>(DiffCallback()){
+class WeatherAdapter : ListAdapter<X,WeatherAdapter.WeatherViewHolder>(DiffCallback()){
 
     private var listener: OnItemClickListener? = null
 
@@ -26,9 +30,10 @@ class WeatherAdapter : ListAdapter<DailyForecast,WeatherAdapter.WeatherViewHolde
     }
 
     override fun onBindViewHolder(holder: WeatherViewHolder, position: Int) {
-        holder.itemWeatherBinding.txtViewDayTemperature.text = getItem(position).Temperature.Minimum.Value.toString()
-        holder.itemWeatherBinding.txtViewNightTemperature.text = getItem(position).Temperature.Maximum.Value.toString()
-        holder.itemWeatherBinding.txtViewDay.text = getItem(position).Date
+        Picasso.get().load(Constants.OPEN_WEATHER_ICON_BASE_URL + getItem(position).weather.get(0).icon + ".png").into(holder.itemWeatherBinding.imgViewWeatherImage)
+        holder.itemWeatherBinding.txtViewDayTemperature.text = getCelsius(getItem(position).main.temp_min).toString().dropLast(2)
+        holder.itemWeatherBinding.txtViewNightTemperature.text = getCelsius(getItem(position).main.temp_max).toString().dropLast(2)
+        holder.itemWeatherBinding.txtViewDay.text = getItem(position).dt_txt
     }
 
 
@@ -44,12 +49,12 @@ class WeatherAdapter : ListAdapter<DailyForecast,WeatherAdapter.WeatherViewHolde
         }
     }
 
-    class DiffCallback : DiffUtil.ItemCallback<DailyForecast>() {
-        override fun areItemsTheSame(oldItem: DailyForecast, newItem: DailyForecast): Boolean {
-            return oldItem.EpochDate == newItem.EpochDate
+    class DiffCallback : DiffUtil.ItemCallback<X>() {
+        override fun areItemsTheSame(oldItem: X, newItem: X): Boolean {
+            return oldItem.dt == newItem.dt
         }
 
-        override fun areContentsTheSame(oldItem: DailyForecast, newItem: DailyForecast): Boolean {
+        override fun areContentsTheSame(oldItem: X, newItem: X): Boolean {
             return oldItem == newItem
         }
     }
@@ -58,7 +63,7 @@ class WeatherAdapter : ListAdapter<DailyForecast,WeatherAdapter.WeatherViewHolde
         fun onItemClick(item: Int)
     }
 
-    fun getItemAt(position: Int):DailyForecast = getItem(position)
+    fun getItemAt(position: Int):X = getItem(position)
 
     fun setOnItemClickListener(listener: OnItemClickListener) {
         this.listener = listener

@@ -26,12 +26,15 @@ android {
         properties.load(project.rootProject.file("local.properties").newDataInputStream())
         def apiKey = properties.getProperty("api_key", "")
         def apiKeyWeather = properties.getProperty("api_key_weather", "")
+        def apiKeyOpenWeather = properties.getProperty("app_id", "")
 
         debug {
             buildConfigField 'String', "API_KEY", apiKey
             buildConfigField 'String', "API_KEY_WEATHER", apiKeyWeather
+            buildConfigField 'String', "API_KEY_OPEN_WEATHER", apiKeyOpenWeather
             resValue 'string', "api_key", apiKey
             resValue 'string', "api_key_weather", apiKeyWeather
+            resValue 'string', "app_id", apiKeyOpenWeather
 
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -40,8 +43,10 @@ android {
         release {
             buildConfigField 'String', "API_KEY", apiKey
             buildConfigField 'String', "API_KEY_WEATHER", apiKeyWeather
+            buildConfigField 'String', "API_KEY_OPEN_WEATHER", apiKeyOpenWeather
             resValue 'string', "api_key", apiKey
             resValue 'string', "api_key_weather", apiKeyWeather
+            resValue 'string', "app_id", apiKeyOpenWeather
 
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

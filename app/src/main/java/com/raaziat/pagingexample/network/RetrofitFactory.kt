@@ -33,6 +33,16 @@ object RetrofitFactory {
 
         chain.proceed(newRequest)
     }
+    private val authInterceptorOpenWeather = Interceptor { chain ->
+        val newUrl = chain.request()
+            .url().newBuilder()
+            .addQueryParameter("appid", Constants.APP_ID_OPEN_WEATHER)
+            .build()
+        val newRequest = chain.request()
+            .newBuilder().url(newUrl).build()
+
+        chain.proceed(newRequest)
+    }
 
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
@@ -60,6 +70,17 @@ object RetrofitFactory {
             OkHttpClient().newBuilder()
                 .addInterceptor(loggingInterceptor)
                 .addInterceptor(authInterceptorWeather)
+                .build()
+        }
+    val clintOpenWeather: OkHttpClient =
+        if (BuildConfig.DEBUG) {
+            OkHttpClient().newBuilder().addInterceptor(authInterceptorOpenWeather)
+                .addInterceptor(loggingInterceptor)
+                .build()
+        } else {
+            OkHttpClient().newBuilder()
+                .addInterceptor(loggingInterceptor)
+                .addInterceptor(authInterceptorOpenWeather)
                 .build()
         }
 

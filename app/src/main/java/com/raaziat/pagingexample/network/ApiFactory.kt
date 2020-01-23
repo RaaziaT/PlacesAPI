@@ -12,4 +12,8 @@ object ApiFactory {
         .retrofit(Constants.WEATHER_BASE_URL, RetrofitFactory.clintWeather)
         .create(NetworkInterfacesWeather::class.java)
 
+    val networkInterfacesOpenWeather: NetworkInterfacesOpenWeather = RetrofitFactory
+        .retrofit(Constants.BASE_URL_OPEN_WEATHER, RetrofitFactory.clintOpenWeather)
+        .create(NetworkInterfacesOpenWeather::class.java)
+
 }

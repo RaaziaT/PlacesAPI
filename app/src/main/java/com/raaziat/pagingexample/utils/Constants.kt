@@ -10,6 +10,6 @@ object Constants{
     const val WEATHER_BASE_URL = "http://dataservice.accuweather.com"
     const val GOOGLE_BASE_URL = "https://maps.googleapis.com/maps/api/"
     const val BASE_URL_OPEN_WEATHER = "https://api.openweathermap.org/"
-    const val APP_ID_OPEN_WEATHER = "40f55a7fd8edd01b641434b56509e1b6"
+    const val APP_ID_OPEN_WEATHER = BuildConfig.API_KEY_OPEN_WEATHER
     const val OPEN_WEATHER_ICON_BASE_URL = "http://openweathermap.org/img/w/"
 }

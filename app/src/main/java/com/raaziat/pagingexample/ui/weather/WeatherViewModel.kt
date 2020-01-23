@@ -2,11 +2,11 @@ package com.raaziat.pagingexample.ui.weather
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.raaziat.accuweathersample.model.weather.DailyForecast
+import com.raaziat.pagingexample.model.openweather.WeatherResponse
 import com.raaziat.pagingexample.network.ApiFactory
-import com.raaziat.pagingexample.network.NetworkInterfacesWeather
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
+
 
 class WeatherViewModel : ViewModel(){
 
@@ -17,18 +17,17 @@ class WeatherViewModel : ViewModel(){
 
     private val scope = CoroutineScope(coroutineContext)
 
-    private val repository : WeatherRepository = WeatherRepository(ApiFactory.networkInterfacesWeather)
+    private val repository : WeatherRepository = WeatherRepository(ApiFactory.networkInterfacesOpenWeather)
 
 
-    val weatherLiveData = MutableLiveData<MutableList<DailyForecast>>()
+    val weatherLiveData = MutableLiveData<WeatherResponse>()
 
-    fun fetchWeather(latlng:String){
+    fun fetchWeather(lat:Double?,lng:Double?){
         scope.launch {
-            val weather = repository.getWeather(latlng)
+            val weather = repository.getWeather(lat,lng)
             weatherLiveData.postValue(weather)
         }
     }
-
 
     fun cancelAllRequests() = coroutineContext.cancel()
 
