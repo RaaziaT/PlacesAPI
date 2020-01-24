@@ -19,8 +19,12 @@ import com.raaziat.pagingexample.ui.maps.MapsActivity
 import com.raaziat.pagingexample.utils.toast
 import kotlinx.android.synthetic.main.activity_weather.*
 import android.location.Geocoder
+import android.widget.Toast
+import com.raaziat.pagingexample.model.openweather.X
+import com.raaziat.pagingexample.utils.Constants
 import com.raaziat.pagingexample.utils.formatList
 import com.raaziat.pagingexample.utils.getCelsius
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_weather.txtView_day
 import kotlinx.android.synthetic.main.item_weather.*
 import java.util.*
@@ -102,18 +106,25 @@ class WeatherActivity : AppCompatActivity() {
 
 
         weatherViewModel.weatherLiveData.observe(this, Observer {
-            weatherAdapter.submitList(formatList(it.list))
 
-            txtView_city.text = getCityName(lat, lng)
-            txtView_temp.text = getCelsius(it.list[0].main.temp).toString().dropLast(2)
-            txtView_day.text = Calendar.getInstance()
-                .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US)
+            if (it != null) {
+                val list:List<X> =  formatList(it.list)
+                weatherAdapter.submitList(list)
 
-            weatherAdapter.setOnItemClickListener(object : WeatherAdapter.OnItemClickListener {
-                override fun onItemClick(item: Int) {
-                    toast(weatherAdapter.getItemAt(item).dt_txt, this@WeatherActivity)
-                }
-            })
+                txtView_city.text = getCityName(lat, lng)
+                txtView_temp.text = getCelsius(it.list[0].main.temp).toString().dropLast(2)
+                txtView_day.text = Calendar.getInstance()
+                    .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US)
+
+                Picasso.get().load(Constants.OPEN_WEATHER_ICON_BASE_URL + it.list[0].weather.get(0).icon + ".png").
+                    into(imageView)
+
+                weatherAdapter.setOnItemClickListener(object : WeatherAdapter.OnItemClickListener {
+                    override fun onItemClick(item: Int) {
+                        toast(weatherAdapter.getItemAt(item).dt_txt, this@WeatherActivity)
+                    }
+                })
+            } else Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
         })
     }
 }

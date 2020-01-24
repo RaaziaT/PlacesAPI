@@ -1,6 +1,7 @@
 package com.raaziat.pagingexample.utils
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import kotlin.math.round
 import com.raaziat.pagingexample.model.openweather.Main
@@ -26,14 +27,23 @@ fun formatList(list: List<X>): List<X> {
     val listsFormatted = arrayListOf<X>()
     val listSize = list.size -1
     for (i in 0..listSize step 8) {
-        val main = Main(
+
+        var main:Main
+        var listTemp:X
+
+        Log.i("minTemp", i.toString() + " min " + list[i].main.temp_min)
+        Log.i("minTempCelsius", i.toString() + " min " + getCelsius(list[i].main.temp_min))
+        Log.i("maxTemp", i.toString() + " max " + list[i].main.temp_max)
+        Log.i("maxTempCelsius", i.toString() + " max " + getCelsius(list[i].main.temp_max))
+
+        main = Main(
             list[i].main.feels_like, list[i].main.grnd_level,
             list[i].main.humidity, list[i].main.pressure, list[i].main.sea_level,
             list[i].main.temp, getCelsius(list[i].main.temp_kf),
             getCelsius(list[i].main.temp_max),
             getCelsius(list[i].main.temp_min)
         )
-        val listTemp = X(
+        listTemp = X(
             list[i].clouds,
             list[i].dt,
             list[i].dt_txt,
@@ -47,8 +57,8 @@ fun formatList(list: List<X>): List<X> {
     return listsFormatted
 }
 
-fun formatDay(dt: Long?): String {
-    val time = java.util.Date(dt as Long * 1000)
+fun formatDay(dt: Int?): String {
+    val time = java.util.Date(dt!!.toLong() * 1000)
 
     val simpleDateFormat = SimpleDateFormat("EEE, MMM d, ''yy")
     val newstring = simpleDateFormat.format(time)

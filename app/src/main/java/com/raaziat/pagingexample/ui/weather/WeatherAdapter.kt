@@ -1,6 +1,7 @@
 package com.raaziat.pagingexample.ui.weather
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
@@ -11,6 +12,7 @@ import com.raaziat.pagingexample.R
 import com.raaziat.pagingexample.databinding.ItemWeatherBinding
 import com.raaziat.pagingexample.model.openweather.X
 import com.raaziat.pagingexample.utils.Constants
+import com.raaziat.pagingexample.utils.formatDay
 import com.raaziat.pagingexample.utils.getCelsius
 import com.squareup.picasso.Picasso
 
@@ -30,10 +32,19 @@ class WeatherAdapter : ListAdapter<X,WeatherAdapter.WeatherViewHolder>(DiffCallb
     }
 
     override fun onBindViewHolder(holder: WeatherViewHolder, position: Int) {
-        Picasso.get().load(Constants.OPEN_WEATHER_ICON_BASE_URL + getItem(position).weather.get(0).icon + ".png").into(holder.itemWeatherBinding.imgViewWeatherImage)
-        holder.itemWeatherBinding.txtViewDayTemperature.text = getCelsius(getItem(position).main.temp_min).toString().dropLast(2)
-        holder.itemWeatherBinding.txtViewNightTemperature.text = getCelsius(getItem(position).main.temp_max).toString().dropLast(2)
-        holder.itemWeatherBinding.txtViewDay.text = getItem(position).dt_txt
+        if(position == 0) {
+            holder.itemWeatherBinding.imgViewWeatherImage.visibility = View.GONE
+            holder.itemWeatherBinding.txtViewDayTemperature.visibility = View.GONE
+            holder.itemWeatherBinding.txtViewDay.visibility = View.GONE
+            holder.itemWeatherBinding.txtViewNightTemperature.visibility = View.GONE
+        }
+        Picasso.get().load(Constants.OPEN_WEATHER_ICON_BASE_URL + getItem(position).weather.get(0).icon + ".png").
+            into(holder.itemWeatherBinding.imgViewWeatherImage)
+        holder.itemWeatherBinding.txtViewDayTemperature.text = (getItem(position).main.temp_min).
+            toString().dropLast(2)
+        holder.itemWeatherBinding.txtViewNightTemperature.text = (getItem(position).main.temp_max).
+            toString().dropLast(2)
+        holder.itemWeatherBinding.txtViewDay.text = formatDay(getItem(position).dt)
     }
 
 
